@@ -1,7 +1,20 @@
 {
   "name": "stub-oidc-provider",
   "version": "0.0.0",
+  "description": "A stubbed OIDC provider, based on panva/node-oidc-provider",
   "private": true,
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/quickcase/stub-oidc-provider.git"
+  },
+  "bugs": {
+    "url": "https://github.com/quickcase/stub-oidc-provider/issues"
+  },
+  "homepage": "https://github.com/quickcase/stub-oidc-provider#readme",
+  "engines": {
+    "node": "^12"
+  },
   "scripts": {
     "start": "node ./bin/www"
   },
