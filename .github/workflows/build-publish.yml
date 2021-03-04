@@ -1,0 +1,39 @@
+name: build-publish
+on:
+  release:
+    types: [published]
+  push:
+    branches:
+      - main
+jobs:
+  build:
+    name: Build & Publish
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Get release tags
+        id: release_tags
+        if: ${{ github.event_name == 'release' }}
+        run: echo ::set-output name=TAGS::latest,${GITHUB_REF/refs\/tags\//}
+
+      - name: Get main tags
+        id: main_tags
+        if: ${{ github.event_name == 'push' }}
+        run: echo ::set-output name=TAGS::next
+
+      - name: Docker
+        uses: elgohr/Publish-Docker-Github-Action@3.02
+        env:
+          CI_BRANCH: ${{ github.ref }}
+          CI_COMMIT: ${{ github.sha }}
+          CI_REPO: https://github.com/${{ github.repository }}
+        with:
+          name: ${{ github.repository }}
+          username: ${{ secrets.GH_USERNAME }}
+          password: ${{ secrets.GH_TOKEN }}
+          registry: ghcr.io
+          buildargs: CI_BRANCH,CI_COMMIT,CI_REPO
+          tags: "${{ steps.main_tags.outputs.TAGS }}${{ steps.release_tags.outputs.TAGS }}"
