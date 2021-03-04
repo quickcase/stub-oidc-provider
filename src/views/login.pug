@@ -1,0 +1,34 @@
+extends layout
+
+block content
+  main.form-signin.narrow-block.mb-5
+    form(autocomplete='off', method='post', action=`/interaction/${uid}/login`)
+      
+      if client.logoUri
+        img.narrow-block(src=client.logoUri alt=client.clientId)
+      
+      h1.h3.mb-3.fw-normal.text-center Sign in
+      
+      if flash
+        .alert.alert-danger(role='alert')
+          = flash
+      
+      label(for='inputEmail' class='visually-hidden') Email address
+      input.form-control#inputEmail(
+        required
+        type='email'
+        name='email'
+        placeholder='Email address'
+        value=email
+        autofocus=!email
+      )
+      label(for='inputPassword' class='visually-hidden') Password
+      input.form-control#inputPassword(
+        type='password'
+        name='password'
+        placeholder='Password'
+        autofocus=!!email
+      )
+      
+      button.w-100.btn.btn-lg.btn-primary(type='submit') Sign-in
+    

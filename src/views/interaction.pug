@@ -1,0 +1,42 @@
+extends layout
+
+block content
+  main.form-signin.narrow-block.mb-5
+    form(autocomplete='off', method='post', action=`/interaction/${uid}/confirm`)
+      
+      if client.logoUri
+        img.narrow-block(src=client.logoUri alt=client.clientId)
+      
+      h1.h3.mb-3.fw-normal.text-center Authorise
+      
+      if [scopes.accepted, scopes.rejected, claims.accepted, claims.rejected].every(({ length }) => length === 0)
+        p= `${client.clientName || 'The client'} is asking you to confirm a new authorisation.`
+        
+      if [scopes.new, claims.new].every(({ length }) => length === 0)
+        p= `${client.clientName || 'The client'} is asking you to confirm previously given authorisation.`
+        
+      - const newScopes = new Set(scopes.new); newScopes.delete('openid'); newScopes.delete('offline_access')
+      if newScopes.size
+        p <strong>Scopes</strong>:
+        ul
+          each scope in Array.from(newScopes)
+            li= scope
+
+      - const newClaims = new Set(claims.new)
+      - ['sub', 'sid', 'auth_time', 'acr', 'amr', 'iss'].forEach(Set.prototype.delete.bind(newClaims))
+      if newClaims.size
+        p <strong>Claims</strong>:
+        ul
+          each claim in Array.from(newClaims)
+            li= claim
+
+      if params.scope && params.scope.includes('offline_access')
+        p
+          = `${client.clientName || 'The client'} is asking to have offline access to this authorisation.`
+          if !scopes.new.includes('offline_access')
+          |
+          | This was previously granted.
+      
+      button.btn.btn-lg.btn-primary.me-3(type='submit' autofocus) Confirm
+      a.btn.btn-lg.btn-link(href=`/interaction/${uid}/abort` role='button') Cancel
+    

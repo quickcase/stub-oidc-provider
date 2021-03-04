@@ -4,8 +4,7 @@
 # Except:
 !/bin/
 !/public/
-!/routes/
-!/views/
+!/src/
 !/app.js
 !/package.json
 !/package-lock.json
