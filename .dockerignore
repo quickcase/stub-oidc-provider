@@ -1,0 +1,11 @@
+# Ignore everything
+**
+
+# Except:
+!/bin/
+!/public/
+!/routes/
+!/views/
+!/app.js
+!/package.json
+!/package-lock.json
