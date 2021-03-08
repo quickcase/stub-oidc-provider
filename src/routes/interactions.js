@@ -73,6 +73,8 @@ const interactions = (users, oidc) => {
 
   router.post('/:uid/confirm', noCache, async (req, res, next) => {
     try {
+      const { uid } = await oidc.interactionDetails(req, res);
+
       const result = {
         consent: {},
       };
@@ -86,6 +88,8 @@ const interactions = (users, oidc) => {
 
   router.get('/:uid/abort', noCache, async (req, res, next) => {
     try {
+      const { uid } = await oidc.interactionDetails(req, res);
+
       const result = {
         error: 'access_denied',
         error_description: 'User aborted interaction',
