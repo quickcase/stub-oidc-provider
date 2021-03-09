@@ -38,7 +38,7 @@ const interactions = (users, oidc) => {
     }
   });
 
-  router.post('/:uid/login', express.json(), noCache, async (req, res, next) => {
+  router.post('/:uid/login', express.urlencoded({ extended: false }), noCache, async (req, res, next) => {
     try {
       const { uid, params, prompt } = await oidc.interactionDetails(req, res);
 
