@@ -17,7 +17,7 @@ jobs:
       - name: Get release tags
         id: release_tags
         if: ${{ github.event_name == 'release' }}
-        run: echo ::set-output name=TAGS::latest,${GITHUB_REF/refs\/tags\//}
+        run: echo ::set-output name=TAGS::latest,${GITHUB_REF/refs\/tags\/v?/}
 
       - name: Get main tags
         id: main_tags
