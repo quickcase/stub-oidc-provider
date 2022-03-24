@@ -23,6 +23,7 @@ const interactions = (users, oidc) => {
           prompt,
           params,
           flash: undefined,
+          email: params.login_hint,
         });
       }
       return res.render('interaction', {
