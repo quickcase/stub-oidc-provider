@@ -1,6 +1,6 @@
 {
   "name": "stub-oidc-provider",
-  "version": "0.0.0",
+  "version": "1.1.0",
   "description": "A stubbed OIDC provider, based on panva/node-oidc-provider",
   "private": true,
   "license": "MIT",
