@@ -25,7 +25,7 @@ jobs:
         run: echo ::set-output name=TAGS::next
 
       - name: Docker
-        uses: elgohr/Publish-Docker-Github-Action@3.02
+        uses: elgohr/Publish-Docker-Github-Action@v5
         env:
           CI_BRANCH: ${{ github.ref }}
           CI_COMMIT: ${{ github.sha }}
