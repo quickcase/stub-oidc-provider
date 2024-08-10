@@ -28,6 +28,8 @@ services:
 
 Configuration is achieved via 2 files, config and users, provided via a folder (here `oidc/`) mounted as a volume.
 
+Consent prompt on login is disabled by default. To enable it, set environment variable `PROMPT_CONSENT: true`.
+
 ### Config
 
 The provider configuration can be provided either as a JSON or YAML file, in the form of an array.
