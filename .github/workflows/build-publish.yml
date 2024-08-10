@@ -1,10 +1,15 @@
 name: build-publish
 on:
-  release:
-    types: [published]
   push:
+    tags:
+      - 'v**'
     branches:
       - main
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
 jobs:
   build:
     name: Build & Publish
@@ -14,26 +19,36 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Get release tags
-        id: release_tags
-        if: ${{ github.event_name == 'release' }}
-        run: echo ::set-output name=TAGS::latest,${GITHUB_REF/refs\/tags\/v/}
+      - name: Docker meta
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=edge,branch=main
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
 
-      - name: Get main tags
-        id: main_tags
-        if: ${{ github.event_name == 'push' }}
-        run: echo ::set-output name=TAGS::next
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
-      - name: Docker
-        uses: elgohr/Publish-Docker-Github-Action@3.02
+      - name: Login to Docker registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ secrets.GH_USERNAME }}
+          password: ${{ secrets.GH_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
         env:
           CI_BRANCH: ${{ github.ref }}
           CI_COMMIT: ${{ github.sha }}
           CI_REPO: https://github.com/${{ github.repository }}
         with:
-          name: ${{ github.repository }}
-          username: ${{ secrets.GH_USERNAME }}
-          password: ${{ secrets.GH_TOKEN }}
-          registry: ghcr.io
+          platforms: linux/amd64,linux/arm64
           buildargs: CI_BRANCH,CI_COMMIT,CI_REPO
-          tags: "${{ steps.main_tags.outputs.TAGS }}${{ steps.release_tags.outputs.TAGS }}"
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
