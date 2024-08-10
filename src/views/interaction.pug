@@ -1,11 +1,8 @@
 extends layout
 
 block content
-  main.form-signin.narrow-block.mb-5
+  main.container.container-narrow.form-signin.mb-3
     form(autocomplete='off', method='post', action=`/interaction/${uid}/confirm`)
-      
-      if client.logoUri
-        img.narrow-block(src=client.logoUri alt=client.clientId)
       
       h1.h3.mb-3.fw-normal.text-center Authorise
       
