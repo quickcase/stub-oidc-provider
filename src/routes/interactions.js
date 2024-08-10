@@ -84,6 +84,8 @@ const interactions = (users, oidc) => {
         login: {
           account: accountId,
         },
+        // Skip consent prompt by default
+        consent: process.env.PROMPT_CONSENT === 'true' ? undefined : {},
       };
 
       await oidc.interactionFinished(req, res, result, { mergeWithLastSubmission: false });
