@@ -72,6 +72,18 @@ ttl:
   RefreshToken: 3600
 ```
 
+#### extraAccessTokenClaims
+
+Additional claims can be read from a user's claims and added to the access token by listing the claims' names under property `extraAccessTokenClaims`:
+
+```yml
+extraAccessTokenClaims:
+  - extraClaim1
+  - extraClaim2
+```
+
+The claim value will be as set in the user or an empty string if not set in the user.
+
 ### Users
 
 Users can be provided either as a JSON or YAML file, in the form of an array.
