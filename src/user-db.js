@@ -42,6 +42,7 @@ const claims = (user) => async () => Object.assign({}, user.claims, {
 });
 
 const database = (users) => ({
+  accounts: users,
   findAccount: async (ctx, sub) => users.filter(user => user.id === sub)
                                         .map(user => ({
                                           accountId: user.id,

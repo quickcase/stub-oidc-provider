@@ -2,7 +2,7 @@ extends layout
 
 block content
   main.container.container-narrow.form-signin.mb-3
-    form(autocomplete='off', method='post', action=`/interaction/${uid}/login`)
+    form(autocomplete='off', method='post', action=`/interaction/${uid}/login?mode=${mode}`)
 
       if client.logoUri
         img.d-block.w-50.mx-auto.mb-3(src=client.logoUri alt='')
@@ -12,23 +12,49 @@ block content
       if flash
         .alert.alert-danger(role='alert')
           = flash
-      
-      label(for='inputEmail' class='visually-hidden') Email address
-      input.form-control#inputEmail(
-        required
-        type='email'
-        name='email'
-        placeholder='Email address'
-        value=email
-        autofocus=!email
-      )
-      label(for='inputPassword' class='visually-hidden') Password
-      input.form-control#inputPassword(
-        type='password'
-        name='password'
-        placeholder='Password'
-        autofocus=!!email
-      )
-      
-      button.w-100.btn.btn-lg.btn-primary(type='submit') Sign-in
-    
+
+      if mode === 'type'
+        label(for='inputEmail' class='visually-hidden') Email address
+        input.form-control#inputEmail(
+          required
+          type='email'
+          name='email'
+          placeholder='Email address'
+          value=email
+          autofocus=!email
+          list='available-accounts'
+        )
+        datalist#available-accounts
+          each account in accounts
+            option(value=account.email)
+        label(for='inputPassword' class='visually-hidden') Password
+        input.form-control#inputPassword(
+          type='password'
+          name='password'
+          placeholder='Password'
+          autofocus=!!email
+        )
+
+        button.w-100.btn.btn-lg.btn-primary(type='submit') Sign-in
+
+        div.mt-3
+          a.link-secondary(href=`/interaction/${uid}`) Switch to user list
+
+      else
+        // Select from list
+        .list-group
+          each account in accounts
+            button.list-group-item.list-group-item-action(type='submit' formaction=`/interaction/${uid}/login?mode=${mode}&account=${account.id}`)
+              div.d-flex.justify-content-between
+                div
+                  if account.name
+                    div.fw-bold= account.name
+                    div.text-body-secondary.mb-1= account.email
+                  else
+                    div.fw-bold.mb-1= account.email
+                div.text-body-tertiary= account.id
+              div.d-flex.gap-1
+                each claim in account.claims
+                  div.badge(class=`text-bg-${claim.style}`)= claim.value
+        div.mt-3
+          a.link-secondary(href=`/interaction/${uid}?mode=type`) Switch to email/password inputs
