@@ -1,10 +1,28 @@
 const debug = require('debug')('stub-oidc-provider:interactions');
 const express = require('express');
 
+const BADGE_STYLES = ['primary', 'secondary', 'success', 'danger', 'warning', 'info'];
+
 const noCache = (req, res, next) => {
   res.set('Pragma', 'no-cache');
   res.set('Cache-Control', 'no-cache, no-store');
   return next();
+};
+
+const hash = (str) => str.match(/[a-zA-Z0-9]/g).join('').toLowerCase();
+
+const formatAccount = ({id, email, claims}) => {
+  const {name, ...otherClaims} = claims || {};
+  return {
+    id,
+    name,
+    email,
+    claims: Object.keys(otherClaims).sort().map((key) => ({
+      key,
+      value: otherClaims[key],
+      style: BADGE_STYLES[parseInt(hash(key), 36) % BADGE_STYLES.length],
+    })),
+  };
 };
 
 const interactions = (users, oidc) => {
@@ -18,6 +36,8 @@ const interactions = (users, oidc) => {
 
       if (prompt.name === 'login') {
         return res.render('login', {
+          accounts: users.accounts.map(formatAccount),
+          mode: req.query.mode,
           client,
           uid,
           prompt,
@@ -45,10 +65,12 @@ const interactions = (users, oidc) => {
 
       const client = await oidc.Client.find(params.client_id);
 
-      const accountId = await users.authenticate(req.body.email, req.body.password);
+      const accountId = req.query.account || await users.authenticate(req.body.email, req.body.password);
 
       if (!accountId) {
         return res.render('login', {
+          accounts: users.accounts.map(formatAccount),
+          mode: req.query.mode,
           client,
           uid,
           prompt,
