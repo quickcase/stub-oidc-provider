@@ -1,14 +1,14 @@
 extends layout
 
 block content
-  main.form-signin.narrow-block.mb-5
+  main.container.container-narrow.form-signin.mb-3
     form(autocomplete='off', method='post', action=`/interaction/${uid}/login`)
-      
+
       if client.logoUri
-        img.narrow-block(src=client.logoUri alt=client.clientId)
-      
+        img.d-block.w-50.mx-auto.mb-3(src=client.logoUri alt='')
+
       h1.h3.mb-3.fw-normal.text-center Sign in
-      
+
       if flash
         .alert.alert-danger(role='alert')
           = flash
