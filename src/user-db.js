@@ -48,7 +48,7 @@ const database = (users) => ({
                                           accountId: user.id,
                                           claims: claims(user),
                                         }))[0],
-  authenticate: async (email, password) => users.filter(user => email.localeCompare(user.email, {sensitivity: 'base'}) === 0)
+  authenticate: async (email, password) => users.filter(user => email?.localeCompare(user.email, {sensitivity: 'base'}) === 0)
                                                 .filter(user => !user.password || user.password === password)
                                                 .map(user => user.id)[0],
 });
