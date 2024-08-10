@@ -1,5 +1,5 @@
 # --- Base ---
-FROM node:16-alpine as base
+FROM node:16-alpine AS base
 
 ENV WORKDIR=/home/node/app
 
@@ -14,7 +14,7 @@ RUN mkdir -p ${WORKDIR}/node_modules \
 USER node
 
 # --- Runtime ---
-FROM base as runtime
+FROM base AS runtime
 
 ARG CI_BRANCH="main"
 ARG CI_COMMIT=""
