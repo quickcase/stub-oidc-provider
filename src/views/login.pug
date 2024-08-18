@@ -53,8 +53,8 @@ block content
                   else
                     div.fw-bold.mb-1= account.email
                 div.text-body-tertiary= account.id
-              div.d-flex.gap-1
+              div.d-flex.flex-wrap.overflow-hidden.gap-1
                 each claim in account.claims
-                  div.badge(class=`text-bg-${claim.style}`)= claim.value
+                  div.badge.text-truncate(class=`text-bg-${claim.style}`)= claim.value
         div.mt-3
           a.link-secondary(href=`/interaction/${uid}?mode=type`) Switch to email/password inputs
