@@ -48,7 +48,7 @@ jobs:
           CI_REPO: https://github.com/${{ github.repository }}
         with:
           platforms: linux/amd64,linux/arm64
-          buildargs: CI_BRANCH,CI_COMMIT,CI_REPO
+          build-args: CI_BRANCH,CI_COMMIT,CI_REPO
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
