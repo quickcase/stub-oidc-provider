@@ -13,7 +13,7 @@
   },
   "homepage": "https://github.com/quickcase/stub-oidc-provider#readme",
   "engines": {
-    "node": "^16"
+    "node": "^22"
   },
   "scripts": {
     "start": "node ./bin/www"

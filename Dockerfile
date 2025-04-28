@@ -1,5 +1,5 @@
 # --- Base ---
-FROM node:16-alpine AS base
+FROM node:22-alpine AS base
 
 ENV WORKDIR=/home/node/app
 
