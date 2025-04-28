@@ -1,6 +1,8 @@
-const debug = require('debug')('stub-oidc-provider:users');
-const {validate} = require('jsonschema');
-const loadFile = require('./file-loader');
+import Debug from 'debug';
+import {validate} from 'jsonschema';
+import loadFile from './file-loader.js';
+
+const debug = Debug('stub-oidc-provider:users');
 
 const SCHEMA = {
   type: 'array',
@@ -60,4 +62,4 @@ const UserDB = {
   fromPath,
 }
 
-module.exports = UserDB;
+export default UserDB;
