@@ -1,12 +1,13 @@
-const express = require('express');
-const logger = require('morgan');
-const path = require('path');
+import express from 'express';
+import logger from 'morgan';
+import path from 'path';
 
-const loadConfig = require('./src/config');
-const Oidc = require('./src/oidc');
-const UserDB = require('./src/user-db');
+import loadConfig from './src/config.js';
+import Oidc from './src/oidc.js';
+import interactions from './src/routes/interactions.js';
+import UserDB from './src/user-db.js';
 
-const interactions = require('./src/routes/interactions');
+const __dirname = import.meta.dirname;
 
 const app = express();
 
@@ -24,4 +25,4 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/interaction', interactions(users, oidc));
 app.use(oidc.callback);
 
-module.exports = app;
+export default app;

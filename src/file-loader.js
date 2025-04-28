@@ -1,5 +1,5 @@
-const {readFileSync} = require('fs');
-const YAML = require('yaml');
+import {readFileSync} from 'fs';
+import YAML from 'yaml';
 
 const LOADERS = [
   {
@@ -18,4 +18,4 @@ const LOADERS = [
 
 const loadFile = (path) => LOADERS.find(({regex}) => regex.test(path)).load(path);
 
-module.exports = loadFile;
+export default loadFile;

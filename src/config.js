@@ -1,5 +1,8 @@
-const debug = require('debug')('stub-oidc-provider:config');
-const path = require('path');
+import Debug from 'debug';
+import path from 'path';
+
+const __dirname = import.meta.dirname;
+const debug = Debug('stub-oidc-provider:config');
 
 const defaults = {
   CONFIG_FILE: path.join(__dirname, '/default/config.yml'),
@@ -21,4 +24,4 @@ const config = () => Object.entries(defaults)
                            })
                            .reduce((acc, [key, value]) => Object.assign({}, acc, {[key]: value}), {});
 
-module.exports = config;
+export default config;

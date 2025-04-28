@@ -1,5 +1,7 @@
-const debug = require('debug')('stub-oidc-provider:interactions');
-const express = require('express');
+import Debug from 'debug';
+import express from 'express';
+
+const debug = Debug('stub-oidc-provider:interactions');
 
 const BADGE_STYLES = ['primary', 'secondary', 'success', 'danger', 'warning', 'info'];
 
@@ -130,4 +132,4 @@ const interactions = (users, oidc) => {
   return router;
 }
 
-module.exports = interactions;
+export default interactions;
