@@ -44,7 +44,7 @@ block content
         // Select from list
         .list-group
           each account in accounts
-            button.list-group-item.list-group-item-action(type='submit' formaction=`/interaction/${uid}/login?mode=${mode}&account=${account.id}`)
+            button.list-group-item.list-group-item-action(type='submit' formaction=`/interaction/${uid}/login?mode=${mode}&accountId=${account.id}`)
               div.d-flex.justify-content-between
                 div
                   if account.name

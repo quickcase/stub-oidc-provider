@@ -5,35 +5,36 @@ block content
     form(autocomplete='off', method='post', action=`/interaction/${uid}/confirm`)
       
       h1.h3.mb-3.fw-normal.text-center Authorise
-      
-      if [scopes.accepted, scopes.rejected, claims.accepted, claims.rejected].every(({ length }) => length === 0)
-        p= `${client.clientName || 'The client'} is asking you to confirm a new authorisation.`
-        
-      if [scopes.new, claims.new].every(({ length }) => length === 0)
-        p= `${client.clientName || 'The client'} is asking you to confirm previously given authorisation.`
-        
-      - const newScopes = new Set(scopes.new); newScopes.delete('openid'); newScopes.delete('offline_access')
-      if newScopes.size
-        p <strong>Scopes</strong>:
+
+      p= `${client.clientName || 'The client'} is asking you to confirm a new authorisation.`
+
+      if missingScopes?.length
+        h2 Scopes
         ul
-          each scope in Array.from(newScopes)
+          each scope in missingScopes
             li= scope
 
-      - const newClaims = new Set(claims.new)
-      - ['sub', 'sid', 'auth_time', 'acr', 'amr', 'iss'].forEach(Set.prototype.delete.bind(newClaims))
-      if newClaims.size
-        p <strong>Claims</strong>:
+      if missingClaims?.length
+        h2 Claims
         ul
-          each claim in Array.from(newClaims)
+          each claim in missingClaims
             li= claim
 
+      if missingResourceScopes
+        h2 Resource scopes
+        ul
+          each indicator, scopes in missingResourceScopes
+            li
+              strong=indicator
+              |: #{scopes}
+
       if params.scope && params.scope.includes('offline_access')
-        p
+        h2 Offline access
           = `${client.clientName || 'The client'} is asking to have offline access to this authorisation.`
-          if !scopes.new.includes('offline_access')
+          if !missingScopes.includes('offline_access')
           |
           | This was previously granted.
       
-      button.btn.btn-lg.btn-primary.me-3(type='submit' autofocus) Confirm
+      button.btn.btn-lg.btn-primary.me-3(type='submit' autofocus) Confirm authorisation
       a.btn.btn-lg.btn-link(href=`/interaction/${uid}/abort` role='button') Cancel
     

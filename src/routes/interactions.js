@@ -1,9 +1,13 @@
+import {strict as assert} from 'node:assert';
 import Debug from 'debug';
 import express from 'express';
 
 const debug = Debug('stub-oidc-provider:interactions');
 
 const BADGE_STYLES = ['primary', 'secondary', 'success', 'danger', 'warning', 'info'];
+
+const EXCLUDED_SCOPES = ['openid', 'offline_access'];
+const EXCLUDED_CLAIMS = ['sub', 'sid', 'auth_time', 'acr', 'amr', 'iss'];
 
 const noCache = (req, res, next) => {
   res.set('Pragma', 'no-cache');
@@ -12,6 +16,8 @@ const noCache = (req, res, next) => {
 };
 
 const hash = (str) => str.match(/[a-zA-Z0-9]/g).join('').toLowerCase();
+
+const exclude = (...values) => (value) => !values.includes(value);
 
 const formatAccount = ({id, email, claims}) => {
   const {name, ...otherClaims} = claims || {};
@@ -36,38 +42,45 @@ const interactions = (users, oidc) => {
 
       const client = await oidc.Client.find(params.client_id);
 
-      if (prompt.name === 'login') {
-        return res.render('login', {
-          accounts: users.accounts.map(formatAccount),
-          mode: req.query.mode,
-          client,
-          uid,
-          prompt,
-          params,
-          flash: undefined,
-          email: params.login_hint,
-        });
+      switch (prompt.name) {
+        case 'login':
+          return res.render('login', {
+            accounts: users.accounts.map(formatAccount),
+            mode: req.query.mode,
+            client,
+            uid,
+            prompt,
+            params,
+            flash: undefined,
+            email: params.login_hint,
+          });
+        case 'consent':
+          return res.render('interaction', {
+            client,
+            uid,
+            prompt,
+            params,
+            missingScopes: prompt.details?.missingOIDCScope?.filter(exclude(EXCLUDED_SCOPES)),
+            missingClaims: prompt.details?.missingOIDCClaims?.filter(exclude(EXCLUDED_CLAIMS)),
+            missingResourceScopes: prompt.details?.missingResourceScopes,
+          });
+        default:
+          return next(new Error(`Unsupported prompt: ${prompt.name}`));
       }
-      return res.render('interaction', {
-        client,
-        uid,
-        prompt,
-        params,
-        scopes: prompt.details.scopes,
-        claims: prompt.details.claims,
-      });
     } catch (err) {
       return next(err);
     }
   });
 
-  router.post('/:uid/login', express.urlencoded({ extended: false }), noCache, async (req, res, next) => {
+  router.post('/:uid/login', express.urlencoded({extended: false}), noCache, async (req, res, next) => {
     try {
-      const { uid, params, prompt } = await oidc.interactionDetails(req, res);
+      const {uid, params, prompt} = await oidc.interactionDetails(req, res);
+
+      assert.equal(prompt.name, 'consent');
 
       const client = await oidc.Client.find(params.client_id);
 
-      const accountId = req.query.account || await users.authenticate(req.body.email, req.body.password);
+      const accountId = req.query.accountId || await users.authenticate(req.body.email, req.body.password);
 
       if (!accountId) {
         return res.render('login', {
@@ -84,7 +97,7 @@ const interactions = (users, oidc) => {
 
       const result = {
         login: {
-          account: accountId,
+          accountId,
         },
         // Skip consent prompt by default
         consent: process.env.PROMPT_CONSENT === 'true' ? undefined : {},
@@ -92,7 +105,7 @@ const interactions = (users, oidc) => {
 
       await oidc.interactionFinished(req, res, result, { mergeWithLastSubmission: false });
 
-      debug(`[${uid}] Succesful log-in for ${accountId}`);
+      debug(`[${uid}] Successful log-in for ${accountId}`);
     } catch (err) {
       next(err);
     }
@@ -100,11 +113,44 @@ const interactions = (users, oidc) => {
 
   router.post('/:uid/confirm', noCache, async (req, res, next) => {
     try {
-      const { uid } = await oidc.interactionDetails(req, res);
+      const interactionDetails = await oidc.interactionDetails(req, res);
+      const {prompt: { name, details }, params, session: { accountId }, uid} = interactionDetails;
+
+      assert.equal(name, 'consent');
+
+      let grant;
+      if (interactionDetails.grantId) {
+        // we'll be modifying existing grant in existing session
+        grant = await oidc.Grant.find(interactionDetails.grantId);
+      } else {
+        // we're establishing a new grant
+        grant = new oidc.Grant({
+          accountId,
+          clientId: params.client_id,
+        });
+      }
+
+      if (details.missingOIDCScope) {
+        grant.addOIDCScope(details.missingOIDCScope.join(' '));
+      }
+      if (details.missingOIDCClaims) {
+        grant.addOIDCClaims(details.missingOIDCClaims);
+      }
+      if (details.missingResourceScopes) {
+        for (const [indicator, scopes] of Object.entries(details.missingResourceScopes)) {
+          grant.addResourceScope(indicator, scopes.join(' '));
+        }
+      }
+
+      const grantId = await grant.save();
 
       const result = {
-        consent: {},
+        consent: {
+          // Only include grant ID for newly created grant
+          grantId: !interactionDetails.grantId ? grantId : undefined,
+        }
       };
+
       await oidc.interactionFinished(req, res, result, { mergeWithLastSubmission: true });
 
       debug(`[${uid}] Consent confirmed`);
