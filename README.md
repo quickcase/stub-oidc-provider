@@ -63,9 +63,6 @@ claims:
 
 conformIdTokenClaims: false
 
-formats:
-  AccessToken: jwt
-
 ttl:
   AccessToken: 300
   AuthorizationCode: 300
@@ -74,12 +71,12 @@ ttl:
   RefreshToken: 3600
 ```
 
-#### extraAccessTokenClaims
+#### extraTokenClaims
 
-Additional claims can be read from a user's claims and added to the access token by listing the claims' names under property `extraAccessTokenClaims`:
+Additional claims can be read from a user's claims and added to the access token by listing the claims' names under property `extraTokenClaims`:
 
 ```yml
-extraAccessTokenClaims:
+extraTokenClaims:
   - extraClaim1
   - extraClaim2
 ```

@@ -23,6 +23,6 @@ app.use(logger('dev'));
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/interaction', interactions(users, oidc));
-app.use(oidc.callback);
+app.use(oidc.callback());
 
 export default app;
