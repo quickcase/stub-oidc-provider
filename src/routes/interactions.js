@@ -76,7 +76,7 @@ const interactions = (users, oidc) => {
     try {
       const {uid, params, prompt} = await oidc.interactionDetails(req, res);
 
-      assert.equal(prompt.name, 'consent');
+      assert.equal(prompt.name, 'login');
 
       const client = await oidc.Client.find(params.client_id);
 
