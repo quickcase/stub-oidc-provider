@@ -23,7 +23,7 @@ block content
       if missingResourceScopes
         h2 Resource scopes
         ul
-          each indicator, scopes in missingResourceScopes
+          each scopes, indicator in missingResourceScopes
             li
               strong=indicator
               |: #{scopes}
