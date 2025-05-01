@@ -83,6 +83,23 @@ extraTokenClaims:
 
 The claim value will be as set in the user or an empty string if not set in the user.
 
+#### Resource indicators (APIs)
+
+This allows leverage of [node-oidc-provider's resource indicators feature](https://github.com/panva/node-oidc-provider/blob/main/docs/README.md#featuresresourceindicators).
+
+Access tokens can be issued for a specific resource server / audience using the optional `apis` property in the config.
+When a resource indicator is not specified, the resource indicator can be defaulted using config property `defaultApi`.
+
+Resource indicators can be used to control the format of an access token for the corresponding API, for example:
+```yaml
+defaultApi: 'https://api.quickcase.app'
+
+apis:
+  'https://api.quickcase.app':
+    scope: openid quickcase
+    accessTokenFormat: jwt
+```
+
 ### Users
 
 Users can be provided either as a JSON or YAML file, in the form of an array.

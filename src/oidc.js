@@ -32,6 +32,15 @@ const provider = (config) => (issuer, findAccount) => new oidc.Provider(
     ...config,
     findAccount,
     extraTokenClaims: extraTokenClaims(findAccount, config.extraTokenClaims ?? config.extraAccessTokenClaims),
+    features: {
+      ...config.features,
+      resourceIndicators: config.apis ? {
+        enabled: true,
+        defaultResource: (ctx, client, oneOf) => config.defaultApi,
+        getResourceServerInfo: (ctx, resourceIndicator, client) => config.apis[resourceIndicator],
+        useGrantedResource: (ctx, model) => true,
+      } : undefined,
+    }
   }
 );
 
