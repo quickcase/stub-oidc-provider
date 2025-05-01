@@ -9,13 +9,17 @@ const LOADERS = [
   {
     regex: /\.ya?ml$/,
     load: (path) => YAML.parse(readFileSync(path).toString()),
-  },
-  {
-    regex: /.*/,
-    load: (path) => {throw Error(`Invalid file type, only .json and .yml are supported: ${path}`);},
   }
 ];
 
-const loadFile = (path) => LOADERS.find(({regex}) => regex.test(path)).load(path);
+const loadFile = (path) => {
+  const loader = LOADERS.find(({regex}) => regex.test(path));
+
+  if (!loader) {
+    throw Error(`Invalid file type, only .json and .yml are supported: ${path}`);
+  }
+
+  return loader.load(path);
+};
 
 export default loadFile;
