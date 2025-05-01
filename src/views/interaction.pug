@@ -8,13 +8,13 @@ block content
 
       p= `${client.clientName || 'The client'} is asking you to confirm a new authorisation.`
 
-      if missingScopes?.length
+      if missingScopes && missingScopes.length > 0
         h2 Scopes
         ul
           each scope in missingScopes
             li= scope
 
-      if missingClaims?.length
+      if missingClaims && missingClaims.length > 0
         h2 Claims
         ul
           each claim in missingClaims
