@@ -9,7 +9,7 @@ const defaultConfig = () => loadFile(DEFAULT_CONFIG_PATH);
 
 /**
  * When extra claims are requested in config, read them from user account and add them to the token.
- */
+*/
 const extraTokenClaims = (findAccount, clients, extraClaims) => async (ctx, token) => {
   if (!extraClaims?.length) {
     // No extra claims requested
@@ -38,6 +38,50 @@ const extraTokenClaims = (findAccount, clients, extraClaims) => async (ctx, toke
   }
 };
 
+const loadExistingGrant = (config) => async (ctx) => {
+  const grantId = ctx.oidc.result?.consent?.grantId
+      || ctx.oidc.session.grantIdFor(ctx.oidc.client.clientId);
+
+    if (grantId) {
+      // keep grant expiry aligned with session expiry
+      // to prevent consent prompt being requested when grant expires
+      const grant = await ctx.oidc.provider.Grant.find(grantId);
+
+      // this aligns the Grant ttl with that of the current session
+      // if the same Grant is used for multiple sessions, or is set
+      // to never expire, you probably do not want this in your code
+      if (ctx.oidc.account && grant.exp < ctx.oidc.session.exp) {
+        grant.exp = ctx.oidc.session.exp;
+
+        await grant.save();
+      }
+
+      return grant;
+    }
+
+    // Grant all scopes, claims and APIs to avoid consent prompt
+    if (process.env.PROMPT_CONSENT !== 'true') {
+      const grant = new ctx.oidc.provider.Grant({
+        clientId: ctx.oidc.client.clientId,
+        accountId: ctx.oidc.session.accountId,
+      });
+
+      const client = config.clients.find((client) => client.client_id === ctx.oidc.client.clientId);
+
+      grant.addOIDCScope(client.scope);
+      grant.addOIDCClaims(Object.keys(client.claims ?? {}));
+
+      Object.entries(config.apis ?? {})
+            .forEach(([urn, api]) => grant.addResourceScope(urn, api.scope));
+
+      await grant.save();
+
+      return grant;
+    }
+
+    return undefined;
+};
+
 const provider = (config) => (issuer, findAccount) => new oidc.Provider(
   issuer,
   {
@@ -53,7 +97,8 @@ const provider = (config) => (issuer, findAccount) => new oidc.Provider(
         getResourceServerInfo: (ctx, resourceIndicator, client) => config.apis[resourceIndicator],
         useGrantedResource: (ctx, model) => true,
       } : undefined,
-    }
+    },
+    loadExistingGrant: loadExistingGrant(config),
   }
 );
 
